@@ -13,7 +13,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: `${siteConfig.name} — ${siteConfig.tagline}`,
+    default: `${siteConfig.name} - ${siteConfig.tagline}`,
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
@@ -25,25 +25,6 @@ export const metadata: Metadata = {
   },
 }
 
-const organizationJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  name: siteConfig.name,
-  url: siteConfig.url,
-}
-
-const websiteJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: siteConfig.name,
-  url: siteConfig.url,
-  potentialAction: {
-    "@type": "SearchAction",
-    target: `${siteConfig.url}/search?q={search_term_string}`,
-    "query-input": "required name=search_term_string",
-  },
-}
-
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -51,20 +32,16 @@ export default async function RootLayout({
 }>) {
   const locale = await getLocale()
   const messages = await getMessages()
+  const dir = locale === "ar" ? "rtl" : "ltr"
 
   return (
-    <html lang={locale} className={`${inter.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-white">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify([organizationJsonLd, websiteJsonLd]),
-          }}
-        />
+    <html lang={locale} dir={dir} suppressHydrationWarning>
+      {/* اللون الرمادي الفحمي الفاخر لجميع الصفحات */}
+      <body className={`${inter.variable} antialiased bg-[#18181b] text-white`}>
         <NextIntlClientProvider messages={messages}>
           {children}
+          <Toaster position="top-center" richColors />
         </NextIntlClientProvider>
-        <Toaster position="bottom-right" />
       </body>
     </html>
   )

@@ -1,169 +1,145 @@
-import type { Metadata } from "next"
+"use client"
+
+import { useState } from "react"
 import Link from "next/link"
-import Image from "next/image"
-import { ArrowRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { siteConfig } from "@/lib/config"
-import { formatPrice } from "@/lib/utils"
-import { ProductGrid } from "@/components/products/product-grid"
-import { NewsletterForm } from "@/components/layout/newsletter-form"
-import { PLACEHOLDER_IMAGE } from "@/lib/constants"
-import { productRepository, categoryRepository } from "@/lib/repositories"
 
-export const metadata: Metadata = {
-  title: "Next.js Ecommerce Starter — Free Open-Source Template | Epic Design Labs",
-  description:
-    "A free, production-ready Next.js ecommerce starter built with Tailwind CSS and shadcn/ui. Includes cart, checkout, search, auth, wishlist, i18n, SEO, and accessibility. Open source on GitHub.",
-  alternates: { canonical: "/" },
-  openGraph: {
-    title: "Next.js Ecommerce Starter — Free Open-Source Template",
-    description:
-      "A free, production-ready Next.js ecommerce starter built with Tailwind CSS and shadcn/ui. Open source on GitHub.",
-    type: "website",
-    url: siteConfig.url,
-  },
-  keywords: [
-    "nextjs ecommerce starter",
-    "next.js ecommerce template",
-    "nextjs store template",
-    "react ecommerce starter",
-    "tailwind ecommerce template",
-    "shadcn ecommerce",
-    "free ecommerce template",
-    "open source ecommerce",
-    "nextjs shopping cart",
-    "ecommerce starter kit",
-  ],
-}
-
-export default async function HomePage() {
-  const categories = await categoryRepository.list()
-  const featuredProducts = await productRepository.getFeatured(4)
-
+export default function HomePage() {
+  const [lang, setLang] = useState<"ar" | "en">("ar")
+  const isAr = lang === "ar"
 
   return (
-    <div className="flex flex-col">
-      {/* Hero */}
-      <section className="relative flex h-[650px] items-center justify-center bg-neutral-50">
-        <div className="mx-auto max-w-3xl px-4 text-center">
-          <Badge variant="secondary" className="mb-4">
-            Free shipping on orders over {formatPrice(siteConfig.freeShippingThreshold)}
-          </Badge>
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-            Next.js Ecommerce Starter
+    <main className={`min-h-screen bg-white text-slate-900 ${isAr ? "font-arabic" : "font-sans"}`} dir={isAr ? "rtl" : "ltr"}>
+      
+      {/* قسم الترحيب الرئيسي (Hero Section) */}
+      <section className="relative flex flex-col items-center justify-center min-h-[85vh] px-4 text-center overflow-hidden">
+        
+        {/* توهج برتقالي خفيف جداً في الخلفية */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[500px] bg-orange-100/50 blur-[120px] rounded-full pointer-events-none" />
+        
+        <div className="relative z-10 max-w-4xl mx-auto space-y-8">
+          <span className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-orange-50 border border-orange-200 text-orange-600 text-sm font-semibold shadow-sm">
+            {isAr ? "🚀 الجيل الجديد من المنتجات الرقمية" : "🚀 The Next Generation of Digital Products"}
+          </span>
+          
+          <h1 className="text-5xl md:text-7xl font-extrabold leading-[1.1] tracking-tight text-slate-900">
+            {isAr ? "اكتشف عالم المنتجات" : "Discover Digital Products"} <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-orange-700">
+              {isAr ? "والحلول الرقمية" : "& Digital Solutions"}
+            </span>
           </h1>
-          <p className="mt-6 text-lg text-muted-foreground">
-            A free, open-source ecommerce template built with Next.js, Tailwind CSS, and shadcn/ui.
-            Production-ready, fully responsive, and designed to connect to any checkout system.
+          
+          <p className="text-lg md:text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed">
+            {isAr 
+              ? "نحن نجمع لك أفضل الأدوات والمواقع والبوتات الذكية من هدهد وشركائنا، لنوفر لك تجربة رقمية متكاملة." 
+              : "We bring together the best tools, websites, and smart bots from Hodhod and our partners to provide you with an integrated digital experience."}
           </p>
-          <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
-            <Button size="lg" asChild>
-              <Link href="/shop">
-                Shop Now
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link href="https://github.com/Epic-Design-Labs/nextjs-ecommerce-starter" target="_blank" rel="noopener">
-                View on GitHub
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
 
-      {/* Categories */}
-      <section className="mx-auto w-full max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold tracking-tight">
-            Shop by Category
-          </h2>
-          <Link
-            href="/shop"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground"
-          >
-            View all
-          </Link>
-        </div>
-        <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-          {categories.map((category) => (
-            <Link key={category.id} href={`/${category.slug}`} className="group">
-              <div className="relative aspect-square overflow-hidden rounded-lg bg-neutral-100">
-                <Image
-                  src={category.image?.url ?? PLACEHOLDER_IMAGE}
-                  alt={category.image?.alt ?? category.name}
-                  fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
-                  sizes="(max-width: 768px) 50vw, 16vw"
-                />
-              </div>
-              <div className="mt-3 text-center">
-                <h3 className="text-sm font-medium group-hover:underline">
-                  {category.name}
-                </h3>
-              </div>
+          <div className="flex items-center justify-center gap-4 pt-6">
+            <Link href="/shop" className="px-8 py-4 rounded-xl bg-orange-600 hover:bg-orange-500 transition-all font-bold text-white shadow-lg hover:shadow-orange-500/30 transform hover:-translate-y-1">
+              {isAr ? "تصفح جميع المنتجات" : "Browse All Products"}
             </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Featured Products */}
-      <section className="mx-auto w-full max-w-[1440px] px-4 py-16 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold tracking-tight">
-            Featured Products
-          </h2>
-          <Link
-            href="/shop"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground"
-          >
-            View all
-          </Link>
-        </div>
-        <div className="mt-8">
-          <ProductGrid products={featuredProducts} />
-        </div>
-      </section>
-
-      {/* Developer CTA */}
-      <section className="border-t bg-neutral-50">
-        <div className="mx-auto flex max-w-[1440px] flex-col items-center px-4 py-16 text-center sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-            Need help building your store?
-          </h2>
-          <p className="mt-4 max-w-xl text-muted-foreground">
-            This starter is free and open source. Grab it from GitHub and build your own,
-            or work with our team at Epic Design Labs to bring your vision to life.
-          </p>
-          <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-            <Button size="lg" asChild>
-              <Link href="https://github.com/Epic-Design-Labs/nextjs-ecommerce-starter" target="_blank" rel="noopener">
-                Get the Starter
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link href="https://epicdesignlabs.com" target="_blank" rel="noopener">
-                Hire a Developer
-              </Link>
-            </Button>
+            <Link href="/about" className="px-8 py-4 rounded-xl bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all font-bold text-slate-700">
+              {isAr ? "تعرف علينا" : "About Us"}
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Newsletter CTA */}
-      <section className="bg-neutral-900 text-white">
-        <div className="mx-auto flex max-w-[1440px] flex-col items-center px-4 py-16 text-center sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-            Join our newsletter
+      {/* قسم المنتجات المميزة */}
+      <section className="relative z-10 max-w-[1440px] mx-auto px-4 pb-24 pt-10">
+        <div className="flex items-center justify-between mb-10 border-b border-slate-100 pb-4">
+          <h2 className="text-3xl font-bold text-slate-900">
+            {isAr ? "منتجات مميزة" : "Featured Products"}
           </h2>
-          <p className="mt-4 text-neutral-400">
-            Get updates on new arrivals and exclusive offers.
-          </p>
-          <NewsletterForm />
+          <Link href="/shop" className="text-orange-600 hover:text-orange-700 font-semibold transition-colors flex items-center gap-2">
+            {isAr ? "عرض الكل" : "View All"} 
+            <span>{isAr ? "←" : "→"}</span>
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          
+          {/* بطاقة المنتج الأول (أكاديمية هدهد) مع روابط Whop الحقيقية */}
+          <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-orange-500/50 hover:shadow-lg transition-all duration-300 group flex flex-col relative">
+            <span className="absolute top-3 right-3 z-10 bg-orange-500 text-white text-xs font-bold px-2.5 py-1 rounded-md shadow-md">
+              {isAr ? "الأكثر مبيعاً" : "Best Seller"}
+            </span>
+            
+            <div className="aspect-[4/3] bg-slate-50 relative overflow-hidden flex items-center justify-center p-6">
+              <div className="text-center">
+                <span className="text-6xl block mb-2">🎓</span>
+                <span className="text-slate-400 font-bold text-sm">Hodhod Academy</span>
+              </div>
+            </div>
+            
+            <div className="p-5 flex flex-col flex-1">
+              <h3 className="text-slate-900 font-bold text-lg mb-2 group-hover:text-orange-600 transition-colors">
+                {isAr ? "أكاديمية هدهد - منهج التمكين المعرفي" : "Hodhod Academy - Knowledge Empowerment"}
+              </h3>
+              <p className="text-slate-500 text-sm mb-5 line-clamp-2 flex-1">
+                {isAr 
+                  ? "برنامج تدريبي حصري يجمع بين عمق التفكير وقوة الحفظ ونشاطة الإبداع." 
+                  : "An exclusive training program combining deep thinking, memory power, and creativity."}
+              </p>
+              
+              {/* أزرار الشراء والأفيلييت بروابط Whop الحقيقية */}
+              <div className="flex flex-col gap-2 mt-auto pt-4 border-t border-slate-100">
+                <a 
+                  href="https://whop.com/hodhod/ad9f9668-2805-49c6-b948-502ede6cc3b2/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-full py-2.5 bg-orange-600 hover:bg-orange-500 text-white text-center font-bold rounded-lg transition-all text-sm"
+                >
+                  {isAr ? "اشترِ الآن" : "Buy Now"}
+                </a>
+                <a 
+                  href="https://whop.com/hodhod/affiliates/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-center font-bold rounded-lg transition-all text-sm"
+                >
+                  {isAr ? "سوّق واربح عمولة" : "Promote & Earn"}
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* بقية البطاقات (تجريبية) */}
+          {[
+            { id: 2, titleAr: "بوت واتساب ذكي", titleEn: "Smart WhatsApp Bot", descAr: "أتمتة ردود واتساب لشركتك.", descEn: "Automate your business WhatsApp replies.", price: "$49.00", tag: "مميز" },
+            { id: 3, titleAr: "قالب موقع شركة", titleEn: "Corporate Website Template", descAr: "قالب عصري جاهز للاستخدام.", descEn: "Modern ready-to-use template.", price: "$99.00", tag: "" },
+            { id: 4, titleAr: "خدمة تصميم UI/UX", titleEn: "UI/UX Design Service", descAr: "تصميم واجهات احترافية لمشروعك.", descEn: "Professional interfaces for your project.", price: "$199.00", tag: "خدمة" },
+          ].map((product) => (
+            <div key={product.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-orange-500/50 hover:shadow-lg transition-all duration-300 group flex flex-col">
+              
+              <div className="aspect-[4/3] bg-slate-50 relative overflow-hidden flex items-center justify-center">
+                {product.tag && (
+                  <span className="absolute top-3 right-3 z-10 bg-orange-500 text-white text-xs font-bold px-2.5 py-1 rounded-md shadow-md">
+                    {product.tag}
+                  </span>
+                )}
+                <span className="text-4xl opacity-20 group-hover:opacity-40 group-hover:scale-110 transition-all duration-500">📦</span>
+              </div>
+              
+              <div className="p-5 flex flex-col flex-1">
+                <h3 className="text-slate-900 font-bold text-lg mb-2 group-hover:text-orange-600 transition-colors">
+                  {isAr ? product.titleAr : product.titleEn}
+                </h3>
+                <p className="text-slate-500 text-sm mb-5 line-clamp-2 flex-1">
+                  {isAr ? product.descAr : product.descEn}
+                </p>
+                <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-100">
+                  <span className="text-orange-600 font-bold text-lg">{product.price}</span>
+                  <button className="px-4 py-2 bg-slate-900 hover:bg-orange-600 text-white text-sm font-bold rounded-lg transition-all">
+                    {isAr ? "اكتشف" : "Discover"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+
         </div>
       </section>
-    </div>
+    </main>
   )
 }
