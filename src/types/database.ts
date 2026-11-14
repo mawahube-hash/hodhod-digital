@@ -1,4 +1,4 @@
-export type ProductStatus = "draft" | "active" | "archived";
+﻿export type ProductStatus = "draft" | "published" | "archived";
 export type AffiliateProvider = "whop" | "internal" | "other";
 export type CommissionType = "percent" | "fixed";
 export type UserRole = "user" | "affiliate" | "admin";

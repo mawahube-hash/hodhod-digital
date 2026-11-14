@@ -9,7 +9,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   const term = (q ?? "").trim().replace(/[%,]/g, "");
   let products: Product[] = [];
   if (term) {
-    const { data } = await supabase.from("products").select("*").eq("status", "active").ilike("name", `%${term}%`);
+    const { data } = await supabase.from("products").select("*").eq("status", "published").ilike("name", `%${term}%`);
     products = (data ?? []) as Product[];
   }
   return (
@@ -21,3 +21,4 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
     </main>
   );
 }
+

@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { useState, useEffect, useCallback, useRef, type KeyboardEvent as ReactKeyboardEvent } from "react"
 import Link from "next/link"
@@ -34,7 +34,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const results = query.trim().length > 0
     ? allProducts.filter(
         (p) =>
-          p.status === "active" &&
+          p.status === "published" &&
           (p.name.toLowerCase().includes(query.toLowerCase()) ||
             p.description.toLowerCase().includes(query.toLowerCase()) ||
             p.tags.some((t) => t.toLowerCase().includes(query.toLowerCase())))
@@ -206,3 +206,4 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
     </div>
   )
 }
+

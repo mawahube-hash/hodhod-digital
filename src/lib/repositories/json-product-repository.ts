@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   Product,
   ProductFilters,
   ProductRepository,
@@ -13,7 +13,7 @@ const products = data.products as Product[]
 function applyFilters(items: Product[], filters?: ProductFilters): Product[] {
   if (!filters) return items
 
-  let result = items.filter((p) => p.status === "active")
+  let result = items.filter((p) => p.status === "published")
 
   if (filters.category) {
     const category = data.categories.find((c) => c.slug === filters.category)
@@ -121,7 +121,7 @@ export const jsonProductRepository: ProductRepository = {
   },
 
   async getBySlug(slug) {
-    return products.find((p) => p.slug === slug && p.status === "active") ?? null
+    return products.find((p) => p.slug === slug && p.status === "published") ?? null
   },
 
   async getById(id) {
@@ -130,7 +130,7 @@ export const jsonProductRepository: ProductRepository = {
 
   async getFeatured(limit = 4) {
     return products
-      .filter((p) => p.featured && p.status === "active")
+      .filter((p) => p.featured && p.status === "published")
       .slice(0, limit)
   },
 
@@ -139,7 +139,7 @@ export const jsonProductRepository: ProductRepository = {
     if (!category) return paginate([], pagination)
 
     const categoryProducts = products.filter(
-      (p) => p.categoryIds.includes(category.id) && p.status === "active"
+      (p) => p.categoryIds.includes(category.id) && p.status === "published"
     )
     return paginate(categoryProducts, pagination)
   },
@@ -149,3 +149,4 @@ export const jsonProductRepository: ProductRepository = {
     return paginate(filtered, pagination)
   },
 }
+

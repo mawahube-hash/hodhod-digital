@@ -1,5 +1,5 @@
-// ============================================================================
-// Core Ecommerce Types — Backend-Agnostic Data Contract
+﻿// ============================================================================
+// Core Ecommerce Types â€” Backend-Agnostic Data Contract
 // ============================================================================
 
 // --- Brand ---
@@ -42,7 +42,7 @@ export interface BlogPost {
 
 // --- Product ---
 
-export type ProductStatus = "draft" | "active" | "archived"
+export type ProductStatus = "draft" | "published" | "archived"
 
 export interface ProductImage {
   url: string
@@ -81,7 +81,7 @@ export interface Product {
   id: string
   name: string
   slug: string
-  /** Short blurb shown in the product info column (1–2 sentences) */
+  /** Short blurb shown in the product info column (1â€“2 sentences) */
   description: string
   /** Full HTML description shown below gallery/add-to-cart (.blog-body prose) */
   body?: string
@@ -371,3 +371,4 @@ export interface OrderRepository {
   create(order: Omit<Order, "id" | "createdAt" | "updatedAt">): Promise<Order>
   updateStatus(id: string, status: OrderStatus): Promise<Order>
 }
+
