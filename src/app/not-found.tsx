@@ -1,38 +1,11 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Header } from "@/components/layout/header"
-import { Footer } from "@/components/layout/footer"
-import { AnnouncementBar } from "@/components/layout/announcement-bar"
-import { categoryRepository } from "@/lib/repositories"
+﻿import Link from "next/link";
 
-export default async function NotFound() {
-  // Fetch categories so the header nav still works on 404
-  const categories = await categoryRepository.list()
-
+export default function NotFound() {
   return (
-    <>
-      <AnnouncementBar />
-      <Header categories={categories} />
-      <main className="flex-1">
-        <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
-          <p className="text-sm font-medium text-muted-foreground">404</p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight">
-            Page not found
-          </h1>
-          <p className="mt-4 text-muted-foreground">
-            Sorry, we couldn&apos;t find the page you&apos;re looking for.
-          </p>
-          <div className="mt-8 flex gap-4">
-            <Button asChild>
-              <Link href="/">Go Home</Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link href="/shop">Browse Products</Link>
-            </Button>
-          </div>
-        </div>
-      </main>
-      <Footer />
-    </>
-  )
+    <main className="flex min-h-screen flex-col items-center justify-center bg-white px-4 text-center">
+      <h1 className="mb-2 text-5xl font-bold text-slate-900">404</h1>
+      <p className="mb-6 text-slate-600">الصفحة التي تبحث عنها غير موجودة</p>
+      <Link href="/" className="rounded-lg bg-[#008060] px-5 py-2 text-sm font-medium text-white hover:bg-[#006e52]">العودة للرئيسية</Link>
+    </main>
+  );
 }

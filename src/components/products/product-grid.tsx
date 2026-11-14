@@ -1,24 +1,17 @@
-import type { Product } from "@/types"
-import { ProductCard } from "./product-card"
+﻿import type { Product } from "@/types/database";
+import { ProductCard } from "./product-card";
 
-interface ProductGridProps {
-  products: Product[]
-}
-
-export function ProductGrid({ products }: ProductGridProps) {
+export function ProductGrid({ products }: { products: Product[] }) {
   if (products.length === 0) {
-    return (
-      <div className="py-16 text-center">
-        <p className="text-muted-foreground">No products found.</p>
-      </div>
-    )
+    return <p className="py-12 text-center text-slate-500">لا توجد منتجات حالياً</p>;
   }
-
   return (
-    <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}
     </div>
-  )
+  );
 }
+
+export default ProductGrid;
