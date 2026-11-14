@@ -1,99 +1,69 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { Search, ShoppingBag, User, Heart } from "lucide-react"
-import { useState } from "react"
-import { useCartStore } from "@/store/cart"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 
-export function Header() {
-  const { items } = useCartStore()
-  const [searchOpen, setSearchOpen] = useState(false)
-  
-  // حالة اللغة
-  const [lang, setLang] = useState<"ar" | "en">("ar")
-  const isAr = lang === "ar"
+export default function Header() {
+  const [lang, setLang] = useState<"ar" | "en">("ar");
+  const pathname = usePathname();
+  const router = useRouter();
+
+  // مزامنة حالة اللغة مع الـ HTML عند التحميل الأول (اختياري)
+  useEffect(() => {
+    const dir = lang === "ar" ? "rtl" : "ltr";
+    document.documentElement.dir = dir;
+    document.documentElement.lang = lang;
+  }, [lang]);
+
+  const toggleLanguage = () => {
+    const newLang = lang === "ar" ? "en" : "ar";
+    setLang(newLang);
+    // هنا يمكنك إضافة منطق تغيير المسار إذا كنت تستخدم i18n routing
+    // router.push(pathname.replace(`/${lang}`, `/${newLang}`));
+  };
 
   return (
-    <>
-      <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white shadow-sm">
-        <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-50 w-full bg-[#0a0a0a]/80 backdrop-blur-md border-b border-white/10">
+      <div className="container mx-auto px-6 py-4 max-w-7xl flex items-center justify-between">
+        
+        {/* 1. الشعار (ثابت في مكانه) */}
+        <Link href="/" className="flex items-center gap-2 text-white font-black text-2xl tracking-tighter">
+          <span className="text-blue-500">◈</span> هدهد ديجيتال
+        </Link>
+
+        {/* 2. روابط التنقل (في المنتصف) */}
+        <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
+          <Link href="/products" className="hover:text-white transition">المنتجات</Link>
+          <Link href="/services" className="hover:text-white transition">الخدمات</Link>
+          <Link href="/affiliates" className="hover:text-white transition">المسوقون</Link>
+        </nav>
+
+        {/* 3. المنطقة اليمنى/اليسرى (الأدوات) - يتم تثبيت زر اللغة فيها */}
+        <div className="flex items-center gap-4">
           
-          {/* اللوجو */}
-          <Link href="/" className="flex items-center gap-1 text-xl font-black hover:opacity-80 transition-opacity">
-            <span className="text-orange-500">HODHOD</span>
-            <span className="text-slate-900">DIGITAL</span>
-          </Link>
+          {/* زر السلة (مثال) */}
+          <button className="text-gray-400 hover:text-white transition relative">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          </button>
 
-          {/* روابط التنقل وزر اللغة */}
-          <nav className="hidden md:flex items-center gap-6 text-sm font-semibold text-slate-600">
-            <Link href="/shop" className="hover:text-orange-600 transition-colors">
-              جميع المنتجات
-            </Link>
-            <Link href="/about" className="hover:text-orange-600 transition-colors">
-              من نحن
-            </Link>
-            <button 
-              onClick={() => {
-                setLang(isAr ? "en" : "ar")
-                document.documentElement.dir = isAr ? "ltr" : "rtl"
-              }}
-              className="text-slate-600 hover:text-orange-600 font-bold transition-colors"
+          {/* ======================================================= */}
+          {/* زر تبديل اللغة - التثبيت المكاني (Fixed Positioning) */}
+          {/* ======================================================= */}
+          <div className="flex-shrink-0 w-[90px] h-[36px] relative">
+            <button
+              onClick={toggleLanguage}
+              className="absolute inset-0 flex items-center justify-center bg-white/5 border border-white/10 rounded-full text-sm font-bold text-white hover:bg-white/10 transition-colors duration-200"
             >
-              {isAr ? "English" : "عربي"}
-            </button>
-          </nav>
-
-          {/* الأيقونات */}
-          <div className="flex items-center gap-2">
-            <button 
-              onClick={() => setSearchOpen(true)}
-              className="text-slate-500 hover:text-orange-600 transition-colors p-2 rounded-lg hover:bg-slate-50"
-            >
-              <Search className="w-5 h-5" />
-            </button>
-            <button className="text-slate-500 hover:text-orange-600 transition-colors p-2 rounded-lg hover:bg-slate-50">
-              <Heart className="w-5 h-5" />
-            </button>
-            <Link href="/cart" className="text-slate-500 hover:text-orange-600 transition-colors p-2 rounded-lg hover:bg-slate-50 relative">
-              <ShoppingBag className="w-5 h-5" />
-              {items.length > 0 && (
-                <span className="absolute top-0 right-0 bg-orange-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                  {items.length}
-                </span>
-              )}
-            </Link>
-            <button className="text-slate-500 hover:text-orange-600 transition-colors p-2 rounded-lg hover:bg-slate-50">
-              <User className="w-5 h-5" />
+              {lang === "ar" ? "English" : "العربية"}
             </button>
           </div>
-        </div>
-      </header>
+          {/* ======================================================= */}
 
-      {/* نافذة البحث المنبثقة (بيضاء) */}
-      {searchOpen && (
-        <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-start justify-center pt-24 px-4">
-          <div className="bg-white border border-slate-200 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden">
-            <div className="flex items-center px-4 border-b border-slate-100">
-              <Search className="w-5 h-5 text-slate-400" />
-              <input 
-                type="text" 
-                placeholder="ابحث عن منتج، أداة، أو خدمة..." 
-                className="w-full bg-transparent text-slate-900 px-4 py-5 outline-none placeholder:text-slate-400"
-                autoFocus
-              />
-              <button 
-                onClick={() => setSearchOpen(false)}
-                className="text-slate-500 hover:text-slate-900 text-sm font-bold"
-              >
-                إغلاق
-              </button>
-            </div>
-            <div className="p-4">
-              <p className="text-slate-400 text-sm text-center py-8">ابدأ الكتابة للبحث في المنتجات...</p>
-            </div>
-          </div>
         </div>
-      )}
-    </>
-  )
+      </div>
+    </header>
+  );
 }

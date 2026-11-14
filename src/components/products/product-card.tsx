@@ -1,105 +1,96 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { Heart } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { StarRating } from "@/components/products/star-rating"
-import { formatPrice } from "@/lib/utils"
-import { PLACEHOLDER_IMAGE } from "@/lib/constants"
-import { useWishlistStore } from "@/store/wishlist"
-import { toast } from "sonner"
-import type { Product } from "@/types"
-
-interface ProductCardProps {
-  product: Product
+interface Product {
+  id: number;
+  title: string;
+  price: number;
+  comparePrice?: number;
+  image: string;
+  badge?: string;
+  rating: number;
+  reviews: number;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
-  const defaultVariant = product.variants[0]
-  if (!defaultVariant) return null
-
-  const price = defaultVariant.price
-  const compareAtPrice = defaultVariant.compareAtPrice
-  const isOnSale = compareAtPrice && compareAtPrice > price
-  const image = product.images[0]
-
-  const wishlistItems = useWishlistStore((s) => s.items)
-  const addItem = useWishlistStore((s) => s.addItem)
-  const removeItem = useWishlistStore((s) => s.removeItem)
-
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
-  const isWishlisted = mounted && wishlistItems.some((i) => i.productId === product.id)
-
-  function handleWishlist(e: React.MouseEvent) {
-    e.preventDefault()
-    e.stopPropagation()
-    if (isWishlisted) {
-      removeItem(product.id)
-      toast("Removed from wishlist")
-    } else {
-      addItem({
-        productId: product.id,
-        name: product.name,
-        slug: product.slug,
-        price,
-        image: image ?? { url: PLACEHOLDER_IMAGE, alt: product.name },
-      })
-      toast.success("Added to wishlist")
-    }
-  }
+export default function ProductCard({ product }: { product: Product }) {
+  const discount = product.comparePrice
+    ? Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)
+    : 0;
 
   return (
-    <Link href={`/${product.slug}`} className="group">
-      <div className="relative aspect-square overflow-hidden rounded-lg bg-neutral-100">
-        <Image
-          src={image?.url ?? PLACEHOLDER_IMAGE}
-          alt={image?.alt ?? product.name}
-          fill
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-          sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+    <article className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-lg hover:shadow-slate-200/60">
+      {/* Image */}
+      <div className="relative aspect-square overflow-hidden bg-slate-50">
+        <img
+          src={product.image}
+          alt={product.title}
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        {isOnSale && (
-          <Badge
-            variant="secondary"
-            className="absolute top-3 left-3 bg-white text-xs"
-          >
-            Sale
-          </Badge>
+        {product.badge && (
+          <span className="absolute top-3 right-3 rounded-full bg-slate-900 px-3 py-1 text-[11px] font-semibold text-white">
+            {product.badge}
+          </span>
         )}
         <button
-          onClick={handleWishlist}
-          className="absolute top-2 right-2 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-sm transition-opacity hover:bg-neutral-50 sm:opacity-0 sm:group-hover:opacity-100"
-          aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+          className="absolute top-3 left-3 rounded-full bg-white/90 p-2 text-slate-600 opacity-0 backdrop-blur-sm transition-all duration-300 hover:text-slate-900 group-hover:opacity-100"
+          aria-label="أضف للمفضلة"
         >
-          <Heart
-            className={`h-4 w-4 ${isWishlisted ? "fill-current text-wishlist" : "text-neutral-600"}`}
-          />
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
         </button>
       </div>
-      <div className="mt-3">
-        <StarRating rating={product.rating} reviewCount={product.reviewCount} size="sm" />
-        <h3 className="mt-1 text-sm font-medium text-foreground group-hover:underline">
-          {product.name}
+
+      {/* Content */}
+      <div className="flex flex-1 flex-col p-5">
+        {/* Rating */}
+        <div className="mb-2 flex items-center gap-1.5">
+          <div className="flex items-center gap-0.5">
+            {[...Array(5)].map((_, i) => (
+              <svg
+                key={i}
+                className={`h-3.5 w-3.5 ${
+                  i < Math.floor(product.rating) ? "text-amber-400" : "text-slate-200"
+                }`}
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
+            ))}
+          </div>
+          <span className="text-xs text-slate-500">({product.reviews})</span>
+        </div>
+
+        {/* Title */}
+        <h3 className="line-clamp-1 text-sm font-semibold text-slate-900">
+          {product.title}
         </h3>
-        <div className="mt-1 flex items-center gap-2">
-          <span className="text-sm font-medium">
-            {formatPrice(price, defaultVariant.currency)}
+
+        {/* Price */}
+        <div className="mt-2 flex items-baseline gap-2">
+          <span className="text-lg font-bold text-slate-900">
+            {product.price} <span className="text-xs font-medium">ر.س</span>
           </span>
-          {isOnSale && (
-            <span className="text-xs text-muted-foreground line-through">
-              {formatPrice(compareAtPrice, defaultVariant.currency)}
-            </span>
+          {product.comparePrice && (
+            <>
+              <span className="text-sm text-slate-400 line-through">
+                {product.comparePrice} ر.س
+              </span>
+              <span className="text-xs font-semibold text-emerald-600">
+                -{discount}%
+              </span>
+            </>
           )}
         </div>
-        {product.variants.length > 1 && (
-          <p className="mt-1 text-xs text-muted-foreground">
-            {product.variants.length} options
-          </p>
-        )}
+
+        {/* Button */}
+        <a
+  href="https://hop.com/hodhod/"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="mt-4 block text-center w-full rounded-xl bg-slate-900 py-2.5 text-sm font-semibold text-white hover:bg-blue-600 transition shadow-sm"
+>
+  احصل عليه الآن
+</a>
       </div>
-    </Link>
-  )
+    </article>
+  );
 }

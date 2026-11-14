@@ -1,307 +1,93 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Link from "next/link"
-import { ShoppingBag, Heart } from "lucide-react"
-import { toast } from "sonner"
-import { useCartStore } from "@/store/cart"
-import { useWishlistStore } from "@/store/wishlist"
-import { useRecentlyViewedStore } from "@/store/recently-viewed"
-import { RecentlyViewed } from "@/components/products/recently-viewed"
-import { StarRating } from "@/components/products/star-rating"
-import { TrustSignals } from "@/components/products/trust-signals"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { ProductGallery } from "@/components/products/product-gallery"
-import { VariantSelector } from "@/components/products/variant-selector"
-import { QuantitySelector } from "@/components/products/quantity-selector"
-import { ProductGrid } from "@/components/products/product-grid"
-import { formatPrice } from "@/lib/utils"
-import { breadcrumbJsonLd } from "@/lib/structured-data"
-import type { Product, Brand, Category } from "@/types"
+import { ShoppingBag, Heart, CheckCircle2, ShieldCheck, ArrowRight } from "lucide-react"
 
-interface ProductDetailViewProps {
-  product: Product
-  relatedProducts: Product[]
-  brand: Brand | null
-  categoryAncestors?: Category[]
-}
-
-export function ProductDetailView({
-  product,
-  relatedProducts,
-  brand,
-  categoryAncestors = [],
-}: ProductDetailViewProps) {
-  const [selectedVariantId, setSelectedVariantId] = useState(
-    product.variants[0]?.id ?? ""
-  )
-  const [quantity, setQuantity] = useState(1)
-
-  const addToCart = useCartStore((s) => s.addItem)
-  const openCart = useCartStore((s) => s.openCart)
-  const wishlistItems = useWishlistStore((s) => s.items)
-  const addToWishlist = useWishlistStore((s) => s.addItem)
-  const removeFromWishlist = useWishlistStore((s) => s.removeItem)
-
-  const addRecentlyViewed = useRecentlyViewedStore((s) => s.addItem)
-
-  const [mounted, setMounted] = useState(false)
-  useEffect(() => setMounted(true), [])
-  const isWishlisted = mounted && wishlistItems.some((i) => i.productId === product.id)
-
-  // Track recently viewed
-  useEffect(() => {
-    addRecentlyViewed({
-      productId: product.id,
-      slug: product.slug,
-      name: product.name,
-      price: product.variants[0]?.price ?? 0,
-      imageUrl: product.images[0]?.url ?? "",
-      imageAlt: product.images[0]?.alt ?? product.name,
-    })
-  }, [product.id])
-
-  const selectedVariant = product.variants.find(
-    (v) => v.id === selectedVariantId
-  )
-  if (!selectedVariant) return null
-
-  const isOnSale =
-    selectedVariant.compareAtPrice &&
-    selectedVariant.compareAtPrice > selectedVariant.price
-  const inStock =
-    selectedVariant.inventory.quantity > 0 ||
-    selectedVariant.inventory.allowBackorder
-
-  function handleAddToCart() {
-    addToCart({
-      variantId: selectedVariant!.id,
-      productId: product.id,
-      name: product.name,
-      variantName: selectedVariant!.name,
-      image: product.images[0] ?? { url: "", alt: product.name },
-      slug: product.slug,
-      price: selectedVariant!.price,
-      quantity,
-    })
-    openCart()
-  }
-
-  function handleToggleWishlist() {
-    if (isWishlisted) {
-      removeFromWishlist(product.id)
-      toast("Removed from wishlist")
-    } else {
-      addToWishlist({
-        productId: product.id,
-        name: product.name,
-        slug: product.slug,
-        price: selectedVariant!.price,
-        image: product.images[0] ?? { url: "", alt: product.name },
-      })
-      toast.success("Added to wishlist")
-    }
-  }
-
-  const breadcrumbLd = breadcrumbJsonLd([
-    { name: "Shop", href: "/shop" },
-    ...categoryAncestors.map((c) => ({ name: c.name, href: `/${c.slug}` })),
-    { name: product.name, href: `/${product.slug}` },
-  ])
-
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: product.name,
-    description: product.description,
-    image: product.images.map((img) => img.url),
-    sku: selectedVariant.sku,
-    brand: brand ? { "@type": "Brand", name: brand.name } : undefined,
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: product.rating,
-      reviewCount: product.reviewCount,
-    },
-    offers: {
-      "@type": "Offer",
-      price: (selectedVariant.price / 100).toFixed(2),
-      priceCurrency: selectedVariant.currency,
-      availability: inStock
-        ? "https://schema.org/InStock"
-        : "https://schema.org/OutOfStock",
-    },
-  }
+export function ProductDetailView({ product }: { product: any }) {
+  const [lang, setLang] = useState<"ar" | "en">("ar")
+  const isAr = lang === "ar"
 
   return (
-    <div className="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-8">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify([jsonLd, breadcrumbLd]) }}
-      />
-      {/* Breadcrumb — shows category ancestry; product name is in the H1 below */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink render={<Link href="/shop" />}>Shop</BreadcrumbLink>
-          </BreadcrumbItem>
-          {categoryAncestors.map((cat, idx) => {
-            const isLast = idx === categoryAncestors.length - 1
-            return (
-              <div key={cat.id} className="contents">
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  {isLast ? (
-                    <BreadcrumbPage>{cat.name}</BreadcrumbPage>
-                  ) : (
-                    <BreadcrumbLink render={<Link href={`/${cat.slug}`} />}>
-                      {cat.name}
-                    </BreadcrumbLink>
-                  )}
-                </BreadcrumbItem>
-              </div>
-            )
-          })}
-        </BreadcrumbList>
-      </Breadcrumb>
+    <div className={`min-h-screen bg-white text-slate-900 py-12 px-4 sm:px-6 lg:px-8 ${isAr ? "font-arabic" : "font-sans"}`} dir={isAr ? "rtl" : "ltr"}>
+      <div className="max-w-6xl mx-auto">
+        
+        {/* مسار التنقل */}
+        <div className="text-sm text-slate-500 mb-8 flex items-center gap-2">
+          <Link href="/" className="hover:text-orange-600">{isAr ? "الرئيسية" : "Home"}</Link>
+          <span>/</span>
+          <Link href="/shop" className="hover:text-orange-600">{isAr ? "المنتجات" : "Products"}</Link>
+          <span>/</span>
+          <span className="text-slate-900 font-semibold">{isAr ? "أكاديمية هدهد" : "Hodhod Academy"}</span>
+        </div>
 
-      {/* Product */}
-      <div className="mt-2 grid gap-8 lg:grid-cols-2 lg:gap-16">
-        {/* Gallery */}
-        <ProductGallery images={product.images} productName={product.name} />
-
-        {/* Info */}
-        <div className="flex flex-col">
-          <div>
-            <StarRating rating={product.rating} reviewCount={product.reviewCount} />
-          </div>
-
-          <h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
-            {product.name}
-          </h1>
-
-          {brand && (
-            <Link
-              href={`/${brand.slug}`}
-              className="mt-1 text-sm text-muted-foreground hover:text-foreground hover:underline"
-            >
-              {brand.name}
-            </Link>
-          )}
-
-          <div className="mt-4 flex items-center gap-3">
-            <span className="text-2xl font-semibold">
-              {formatPrice(selectedVariant.price, selectedVariant.currency)}
-            </span>
-            {isOnSale && (
-              <>
-                <span className="text-lg text-muted-foreground line-through">
-                  {formatPrice(
-                    selectedVariant.compareAtPrice!,
-                    selectedVariant.currency
-                  )}
-                </span>
-                <Badge variant="secondary">
-                  {Math.round(
-                    (1 -
-                      selectedVariant.price /
-                        selectedVariant.compareAtPrice!) *
-                      100
-                  )}
-                  % off
-                </Badge>
-              </>
-            )}
-          </div>
-
-          <p className="mt-4 text-muted-foreground">{product.description}</p>
-
-          {/* Variants */}
-          {product.variants.length > 1 && (
-            <div className="mt-6 mb-6">
-              <VariantSelector
-                variants={product.variants}
-                selectedVariantId={selectedVariantId}
-                onSelect={setSelectedVariantId}
-              />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+          
+          {/* صورة المنتج */}
+          <div className="bg-slate-50 rounded-3xl p-10 aspect-square flex items-center justify-center border border-slate-200 relative overflow-hidden">
+            <span className="text-[150px]">🎓</span>
+            <div className="absolute top-4 right-4 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
+              {isAr ? "الأكثر مبيعاً" : "Best Seller"}
             </div>
-          )}
-
-          {/* Quantity + Add to Cart */}
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-            <div className="flex items-center gap-4">
-              <QuantitySelector
-                quantity={quantity}
-                onQuantityChange={setQuantity}
-                max={selectedVariant.inventory.quantity || 99}
-              />
-              <Button
-                variant="outline"
-                size="icon"
-                aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-                onClick={handleToggleWishlist}
-              >
-                <Heart className={`h-4 w-4 ${isWishlisted ? "fill-wishlist text-wishlist" : ""}`} />
-              </Button>
-            </div>
-            <Button
-              size="lg"
-              className="w-full sm:flex-1"
-              disabled={!inStock}
-              onClick={handleAddToCart}
-            >
-              <ShoppingBag className="mr-2 h-4 w-4" />
-              {inStock ? "Add to Cart" : "Out of Stock"}
-            </Button>
           </div>
 
-          {!inStock && (
-            <p className="mt-2 text-sm text-destructive">
-              This item is currently out of stock.
+          {/* تفاصيل المنتج */}
+          <div className="space-y-6">
+            <h1 className="text-4xl font-black leading-tight">
+              {isAr ? "أكاديمية هدهد" : "Hodhod Academy"} <br />
+              <span className="text-orange-600">{isAr ? "منهج التمكين المعرفي" : "Knowledge Empowerment"}</span>
+            </h1>
+            
+            <p className="text-lg text-slate-600 leading-relaxed">
+              {isAr 
+                ? "برنامج تدريبي حصري يجمع بين عمق التفكير وقوة الحفظ ونشاطة الإبداع. صُمم هذا المنهج ليكون رحلة متكاملة تأخذك من التشتت إلى التركيز العميق."
+                : "An exclusive training program combining deep thinking, memory power, and creativity. Designed to take you from distraction to deep focus."}
             </p>
-          )}
 
-          <Separator className="my-6" />
+            {/* المميزات */}
+            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4">
+              <h3 className="font-bold text-lg text-slate-900">{isAr ? "ماذا ستتعلم؟" : "What will you learn?"}</h3>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                  <span className="text-slate-600"><strong>{isAr ? "تقنيات الحفظ المتقدم:" : "Advanced Memory:"}</strong> {isAr ? "كيف تحفظ المعلومات المعقدة بسرعة." : "How to memorize complex info quickly."}</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                  <span className="text-slate-600"><strong>{isAr ? "عمق التفكير:" : "Deep Thinking:"}</strong> {isAr ? "أدوات عملية للتفكير النقدي." : "Practical tools for critical thinking."}</span>
+                </li>
+              </ul>
+            </div>
 
-          <TrustSignals />
+            {/* أزرار الشراء */}
+            <div className="space-y-3 pt-4">
+              <a 
+                href="https://whop.com/hodhod/ad9f9668-2805-49c6-b948-502ede6cc3b2/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 py-4 bg-orange-600 hover:bg-orange-500 text-white font-bold rounded-xl transition-all shadow-lg text-lg"
+              >
+                {isAr ? "اشترِ الآن" : "Buy Now"}
+                <ArrowRight className="w-5 h-5" />
+              </a>
+              
+              <a 
+                href="https://whop.com/hodhod/affiliates/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 py-4 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl transition-all"
+              >
+                {isAr ? "سوّق واربح عمولة" : "Promote & Earn"}
+              </a>
+            </div>
+
+            <div className="flex items-center gap-2 text-sm text-slate-500 justify-center pt-2">
+              <ShieldCheck className="w-4 h-4" />
+              {isAr ? "دفع آمن 100% عبر منصة Whop" : "100% Secure Payment via Whop"}
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* Full HTML description (below gallery/add-to-cart) */}
-      {product.body && (
-        <section className="mt-16 border-t pt-12">
-          <div className="mx-auto max-w-3xl">
-            <div
-              className="blog-body"
-              dangerouslySetInnerHTML={{ __html: product.body }}
-            />
-          </div>
-        </section>
-      )}
-
-      {/* Related products */}
-      {relatedProducts.length > 0 && (
-        <section className="mt-16">
-          <h2 className="text-xl font-bold tracking-tight">
-            You may also like
-          </h2>
-          <div className="mt-6">
-            <ProductGrid products={relatedProducts} />
-          </div>
-        </section>
-      )}
-
-      {/* Recently viewed */}
-      <RecentlyViewed excludeProductId={product.id} />
     </div>
   )
 }
