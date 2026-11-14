@@ -16,7 +16,7 @@ export function ProductCard({ product }: { product: P }) {
   return (
     <Link href={`/product/${product.slug}`} className="group block overflow-hidden rounded-2xl border border-slate-200 bg-white transition hover:-translate-y-0.5 hover:shadow-lg">
       <div className="aspect-[4/3] w-full bg-slate-100">
-        {product.image_url && <img src={product.image_url} alt={product.name} className="h-full w-full object-cover" />}
+        {product.image_url && <img src={product.image_url} alt={product.name} className="h-full w-full object-contain p-2" />}
       </div>
       <div className="space-y-2 p-4">
         <h3 className="line-clamp-1 text-base font-semibold text-slate-900">{product.name}</h3>
@@ -35,3 +35,4 @@ export function ProductCard({ product }: { product: P }) {
 }
 
 export default ProductCard;
+
