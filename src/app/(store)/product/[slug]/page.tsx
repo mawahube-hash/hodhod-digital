@@ -1,6 +1,7 @@
 ﻿import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import TrackClick from "@/components/products/track-click";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +19,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   const gallery: string[] = [p.image_url, ...(p.gallery ?? [])].filter(Boolean);
   const vid = youtubeId(p.video_url);
   return (
-    <main className="bg-white">
+    <main className="bg-white"><TrackClick slug={p.slug} />
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 md:grid-cols-2">
         <div className="space-y-3">
           <div className="aspect-square overflow-hidden rounded-2xl bg-slate-100">
@@ -62,3 +63,4 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     </main>
   );
 }
+
