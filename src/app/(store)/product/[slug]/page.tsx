@@ -1,4 +1,5 @@
-﻿import Link from "next/link";
+﻿import PromoteButton from "@/components/products/promote-button";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import TrackClick from "@/components/products/track-click";
@@ -46,7 +47,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <div className="flex flex-wrap gap-3 pt-2">
             {p.purchase_url && <a href={p.purchase_url} target="_blank" rel="noopener noreferrer" className="rounded-lg bg-[#008060] px-6 py-3 text-sm font-medium text-white transition hover:bg-[#006e52]">شراء المنتج</a>}
             {p.website_url && <a href={p.website_url} target="_blank" rel="noopener noreferrer" className="rounded-lg border border-slate-300 px-6 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100">زيارة الموقع</a>}
-            {p.affiliate_enabled && <Link href="/affiliate" className="rounded-lg border border-[#008060] px-6 py-3 text-sm font-medium text-[#008060] transition hover:bg-emerald-50">احصل على رابط الإحالة</Link>}
+            {p.affiliate_enabled && <PromoteButton productId={p.id} />}
           </div>
         </div>
       </div>
@@ -63,4 +64,5 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     </main>
   );
 }
+
 
