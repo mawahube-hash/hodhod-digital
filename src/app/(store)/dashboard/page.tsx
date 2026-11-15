@@ -11,6 +11,7 @@ export default function DashboardPage() {
   const [products, setProducts] = useState<P[]>([]);
   const [state, setState] = useState<"loading" | "guest" | "ready">("loading");
   const [copied, setCopied] = useState("");
+  const [clicks, setClicks] = useState(0);
 
   useEffect(() => {
     (async () => {
@@ -19,6 +20,8 @@ export default function DashboardPage() {
       const { data: prof } = await supabase.from("profiles").select("affiliate_code").eq("id", u.user.id).maybeSingle();
       const { data: prods } = await supabase.from("products").select("id,name,slug").eq("status", "published").eq("affiliate_enabled", true);
       setCode(prof?.affiliate_code ?? null);
+      const { count } = await supabase.from("clicks").select("id", { count: "exact", head: true });
+      setClicks(count ?? 0);
       setProducts((prods ?? []) as P[]);
       setState("ready");
     })();
@@ -44,6 +47,7 @@ export default function DashboardPage() {
       <div className="mx-auto max-w-4xl px-4 py-12">
         <h1 className="mb-2 text-3xl font-bold text-slate-900">لوحة الشريك</h1>
         <p className="mb-8 text-sm text-slate-500">رمزك: <span className="font-mono text-slate-800">{code}</span></p>
+        <div className="mb-8 rounded-2xl border border-slate-200 p-5"><p className="text-sm text-slate-500">عدد النقرات</p><p className="text-3xl font-bold text-slate-900">{clicks}</p></div>
         <div className="divide-y divide-slate-200 rounded-2xl border border-slate-200">
           {products.length === 0 && <p className="p-6 text-center text-slate-500">لا توجد منتجات متاحة للإحالة حالياً</p>}
           {products.map((p) => (
@@ -57,3 +61,4 @@ export default function DashboardPage() {
     </main>
   );
 }
+
