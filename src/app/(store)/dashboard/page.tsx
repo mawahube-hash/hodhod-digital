@@ -18,7 +18,7 @@ export default function DashboardPage() {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) { setState("guest"); return; }
       const { data: prof } = await supabase.from("profiles").select("affiliate_code").eq("id", u.user.id).maybeSingle();
-      const { data: prods } = await supabase.from("products").select("id,name,slug").eq("status", "published").eq("affiliate_enabled", true);
+      const { data: enrs } = await supabase.from("affiliate_enrollments").select("product_id").eq("affiliate_id", u.user.id); const ids = (enrs ?? []).map((e) => e.product_id); const { data: prods } = ids.length ? await supabase.from("products").select("id,name,slug").in("id", ids) : { data: [] };
       setCode(prof?.affiliate_code ?? null);
       const { count } = await supabase.from("clicks").select("id", { count: "exact", head: true });
       setClicks(count ?? 0);
@@ -61,4 +61,5 @@ export default function DashboardPage() {
     </main>
   );
 }
+
 
