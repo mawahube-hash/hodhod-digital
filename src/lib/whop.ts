@@ -1,8 +1,8 @@
-﻿export async function getWhopProducts() {
+export async function getWhopProducts() {
   const apiKey = process.env.WHOP_API_KEY;
   if (!apiKey) return [];
   try {
-    const res = await fetch("https://api.whop.com/v5/products", {
+    const res = await fetch("https://api.whop.com/api/v1/products", {
       headers: {
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
